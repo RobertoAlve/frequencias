@@ -15,10 +15,6 @@ import threading
 
 pacientes = [
     ("Paciente 1", "./arquivos/ST7011J0-PSG.edf", 0),
-    ("Paciente 2", "./arquivos/SC4281G0-PSG.edf", 1),
-    ("Paciente 3", "./arquivos/SC4482F0-PSG.edf", 0),
-    ("Paciente 4", "./arquivos/SC4592G0-PSG.edf", 0),
-    ("Paciente 5", "./arquivos/SC4772G0-PSG.edf", 1),
 ]
 
 
