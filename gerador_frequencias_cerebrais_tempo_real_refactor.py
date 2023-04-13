@@ -36,12 +36,13 @@ def criar_conexao():
     return cnx
 
 
-def insert_query(data_coleta, valor_frequencia_delta, valor_frequecia_theta, valor_frequecia_alpha, valor_frequencia_beta, espaco_utilizado, tempo_utilizado, nome_paciente):
+def insert_query(data):
     cnx = criar_conexao()
     cursor = cnx.cursor()
-    query = (
-        f'insert into frequencias_cerebrais(data_coleta, valor_frequencia_delta, valor_frequencia_theta, valor_frequencia_alpha, valor_frequencia_beta, espaco_utilizado, tempo_utilizado, nome_paciente) values("{data_coleta}", {valor_frequencia_delta}, {valor_frequecia_theta}, {valor_frequecia_alpha}, {valor_frequencia_beta}, {espaco_utilizado}, {tempo_utilizado}, "{nome_paciente}")')
-    cursor.execute(query)
+
+    query = 'insert into frequencias_cerebrais(data_coleta, valor_frequencia_delta, valor_frequencia_theta, valor_frequencia_alpha, valor_frequencia_beta, espaco_utilizado, tempo_utilizado, nome_paciente) values(%s, %s, %s, %s, %s, %s, %s, %s)'
+    cursor.executemany(query, data)
+
     cnx.commit()
     cursor.close()
     cnx.close()
@@ -62,6 +63,8 @@ def gerar_frequencias(path, possui_apnea, nome_paciente):
     frequencias_alpha_simuladas = []
     frequencias_beta_simuladas = []
 
+    dataInserts = []
+
     frequencias = dados.get_data(picks='EEG Fpz-Cz')
     while True:
         tempo_de_inicio = time.time()
@@ -76,17 +79,20 @@ def gerar_frequencias(path, possui_apnea, nome_paciente):
             frequencias, sfreq=dados.info['sfreq'], fmin=4, fmax=8, n_fft=4096)
 
         frequencias_alpha_simuladas.append(np.random.normal(
-            0, np.sqrt(alpha_freq), size=alpha_freq.shape)[-1])
+            0, np.sqrt(alpha_freq), size=alpha_freq.shape))
         frequencias_beta_simuladas.append(np.random.normal(
-            0, np.sqrt(beta_freq), size=beta_freq.shape)[-1])
+            0, np.sqrt(beta_freq), size=beta_freq.shape))
         frequencias_theta_simuladas.append(np.random.normal(
-            0, np.sqrt(theta_freq), size=theta_freq.shape)[-1])
+            0, np.sqrt(theta_freq), size=theta_freq.shape))
         frequencias_delta_simuladas.append(np.random.normal(
-            0, np.sqrt(delta_freq), size=delta_freq.shape)[-1])
+            0, np.sqrt(delta_freq), size=delta_freq.shape))
 
-        insert_query(date.datetime.now(), frequencias_delta_simuladas[-1], frequencias_theta_simuladas[-1], frequencias_alpha_simuladas[-1],
-                     frequencias_beta_simuladas[-1], sys.getsizeof(frequencias_theta_simuladas), time.time() - tempo_de_inicio, nome_paciente)
-        print(f"Insert feito para o {nome_paciente}")
+        for i in range(1, len(frequencias_delta_simuladas[0]) - 1):
+            dataInserts.append((date.datetime.now(), float(frequencias_delta_simuladas[0][i]), float(frequencias_theta_simuladas[0][i]), float(frequencias_alpha_simuladas[0][i]),
+                                float(frequencias_beta_simuladas[0][i]), sys.getsizeof(frequencias_theta_simuladas), time.time() - tempo_de_inicio, nome_paciente))
+
+        insert_query(dataInserts)
+        print(f"Insert de {len(frequencias_delta_simuladas[0])} dados feito para o {nome_paciente}")
 
 
 def monitorar_pacientes():
