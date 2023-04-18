@@ -64,6 +64,10 @@ def gerar_frequencias(path, possui_apnea, nome_paciente):
     frequencias_beta_simuladas = []
 
     dataInserts = []
+    origem = "local"
+
+    if 'AWS_EXECUTION_ENV' in os.environ:
+        origem = "nuvem"
 
     frequencias = dados.get_data(picks='EEG Fpz-Cz')
     while True:
@@ -89,7 +93,7 @@ def gerar_frequencias(path, possui_apnea, nome_paciente):
 
         for i in range(1, len(frequencias_delta_simuladas[0]) - 1):
             dataInserts.append((date.datetime.now(), float(frequencias_delta_simuladas[0][i]), float(frequencias_theta_simuladas[0][i]), float(frequencias_alpha_simuladas[0][i]),
-                                float(frequencias_beta_simuladas[0][i]), sys.getsizeof(frequencias_theta_simuladas), time.time() - tempo_de_inicio, nome_paciente))
+                                float(frequencias_beta_simuladas[0][i]), sys.getsizeof(frequencias_theta_simuladas), time.time() - tempo_de_inicio, nome_paciente, origem))
 
         insert_query(dataInserts)
         print(f"Insert de {len(frequencias_delta_simuladas[0])} dados feito para o {nome_paciente}")
