@@ -40,7 +40,7 @@ def insert_query(data):
     cnx = criar_conexao()
     cursor = cnx.cursor()
 
-    query = 'insert into frequencias_cerebrais(data_coleta, valor_frequencia_delta, valor_frequencia_theta, valor_frequencia_alpha, valor_frequencia_beta, espaco_utilizado, tempo_utilizado, nome_paciente) values(%s, %s, %s, %s, %s, %s, %s, %s)'
+    query = 'insert into frequencias_cerebrais(data_coleta, valor_frequencia_delta, valor_frequencia_theta, valor_frequencia_alpha, valor_frequencia_beta, espaco_utilizado, tempo_utilizado, nome_paciente, origem) values(%s, %s, %s, %s, %s, %s, %s, %s, %s)'
     cursor.executemany(query, data)
 
     cnx.commit()
